@@ -6,6 +6,7 @@ import argparse
 import os
 import subprocess
 from git import Repo
+import shutil
 
 parser = argparse.ArgumentParser()
 parser.add_argument("project_name", help="The project name")
@@ -42,6 +43,11 @@ def modify_cmakelists():
     lines[0] = lines[0].replace("@PROJECT_NAME@", project_name_cmake)
     with open(cmake_lists_file, "w") as f:
         f.writelines(lines)
+
+    # Remove the .git/ of the template
+    git_dir = os.path.join(repo_dir, '.git')
+    if os.path.isdir(git_dir):
+        shutil.rmtree(git_dir)
 
 
 def setup_project():
