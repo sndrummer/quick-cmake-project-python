@@ -25,16 +25,19 @@ def pull_template():
     if os.path.isdir(repo_dir):
         exit("FAILURE: Directory {} already exists, exiting...".format(project_name))
     Repo.clone_from(TEMPLATE_URL, repo_dir)
+    if not os.path.isdir(repo_dir):
+        exit("FAILURE: failed to clone cmake template")
 
 
 def modify_cmakelists():
     print("Configuring project for CMake...")
+    print("--------------------------------------------------------------------------------------------")
     cmake_lists_file = os.path.join(repo_dir, "CMakeLists.txt")
     with open(cmake_lists_file) as f:
         lines = f.readlines()
 
     # Set the correct cmake project name, (cmake likes underscores)
-    project_name_cmake = project_name.replace('-', '_')
+    project_name_cmake = project_name.replace("-", "_")
     lines[0] = lines[0].replace("@PROJECT_NAME@", project_name_cmake)
     lines[0] = lines[0].replace("@PROJECT_NAME@", project_name_cmake)
     with open(cmake_lists_file, "w") as f:
@@ -48,14 +51,17 @@ def setup_project():
     if not os.path.isdir(build_dir_path):
         exit("FAILURE: no build directory at {}".format(build_dir_path))
     os.chdir(build_dir_path)
-    subprocess.run(
+    return_code = subprocess.run(
         [
             "cmake",
             "-DCMAKE_C_COMPILER=/usr/bin/gcc",
             "-DCMAKE_CXX_COMPILER=/usr/bin/g++",
             "..",
         ]
-    )
+    ).returncode
+
+    if return_code != 0:
+        exit("FAILURE: CMake configuration failed, exiting...")
     os.chdir(repo_dir)
 
 
@@ -63,6 +69,7 @@ def main():
     pull_template()
     modify_cmakelists()
     setup_project()
+    print("--------------------------------------------------------------------------------------------")
     print("Success! Project created at {}".format(repo_dir))
 
 
