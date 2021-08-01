@@ -32,7 +32,9 @@ def pull_template():
 
 def modify_cmakelists():
     print("Configuring project for CMake...")
-    print("--------------------------------------------------------------------------------------------")
+    print(
+        "--------------------------------------------------------------------------------------------"
+    )
     cmake_lists_file = os.path.join(repo_dir, "CMakeLists.txt")
     with open(cmake_lists_file) as f:
         lines = f.readlines()
@@ -45,7 +47,7 @@ def modify_cmakelists():
         f.writelines(lines)
 
     # Remove the .git/ of the template
-    git_dir = os.path.join(repo_dir, '.git')
+    git_dir = os.path.join(repo_dir, ".git")
     if os.path.isdir(git_dir):
         shutil.rmtree(git_dir)
 
@@ -69,13 +71,17 @@ def setup_project():
     if return_code != 0:
         exit("FAILURE: CMake configuration failed, exiting...")
     os.chdir(repo_dir)
+    # Now git init the repo
+    Repo.init(repo_dir)
 
 
 def main():
     pull_template()
     modify_cmakelists()
     setup_project()
-    print("--------------------------------------------------------------------------------------------")
+    print(
+        "--------------------------------------------------------------------------------------------"
+    )
     print("Success! Project created at {}".format(repo_dir))
 
 
