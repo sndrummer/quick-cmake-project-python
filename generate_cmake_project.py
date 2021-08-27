@@ -42,7 +42,6 @@ def modify_cmakelists():
     # Set the correct cmake project name, (cmake likes underscores)
     project_name_cmake = project_name.replace("-", "_")
     lines[0] = lines[0].replace("@PROJECT_NAME@", project_name_cmake)
-    lines[0] = lines[0].replace("@PROJECT_NAME@", project_name_cmake)
     with open(cmake_lists_file, "w") as f:
         f.writelines(lines)
 
