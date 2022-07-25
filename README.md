@@ -1,8 +1,8 @@
 # Quick C++ CMake Project Generation with python script
 
-Run the python script to create your C++ project and get started quickly
+Run the python script to create CMake C++17 project from a template
 
-Usage: 
+Usage:
 
 ```bash
 ./generate_cmake_project.py <project-name>

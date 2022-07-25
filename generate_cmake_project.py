@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """Create a C++ Cmake Project from a template"""
 import argparse
@@ -14,7 +13,8 @@ args = parser.parse_args()
 
 cwd = os.getcwd()
 project_name = args.project_name.lower()
-# use underscores since cmake seems to like that
+
+# Replace '-' with underscores to make compatible with CMake
 project_name = project_name.replace(" ", "-")
 project_name = project_name.replace("_", "-")
 repo_dir = os.path.join(cwd, project_name)
@@ -30,22 +30,41 @@ def pull_template():
         exit("FAILURE: failed to clone cmake template")
 
 
-def modify_cmakelists():
+def add_correct_project_name(filename, old, new):
+    """Replace all occurrences of template project name with new project name
+
+    Args:
+        filename (str): Name of the file to replace text
+        old (str): text to replace
+        new (str): replacement text
+    """
+    with open(filename) as f:
+        replaced = f.read().replace(old, new)
+    with open(filename, "w") as f:
+        f.write(replaced)
+
+
+def update_project_name():
     print("Configuring project for CMake...")
     print(
         "--------------------------------------------------------------------------------------------"
     )
     cmake_lists_file = os.path.join(repo_dir, "CMakeLists.txt")
-    with open(cmake_lists_file) as f:
-        lines = f.readlines()
+    launch_json = os.path.join(repo_dir, ".vscode", "launch.json")
+    good_project_name = project_name.replace("-", "_")
 
-    # Set the correct cmake project name, (cmake likes underscores)
-    project_name_cmake = project_name.replace("-", "_")
-    lines[0] = lines[0].replace("@PROJECT_NAME@", project_name_cmake)
-    with open(cmake_lists_file, "w") as f:
-        f.writelines(lines)
+    # Fill in correct project name
+    add_correct_project_name(cmake_lists_file, "@PROJECT_NAME@", good_project_name)
+    add_correct_project_name(launch_json, "@PROJECT_NAME@", good_project_name)
 
     # Remove the .git/ of the template
+    git_dir = os.path.join(repo_dir, ".git")
+    if os.path.isdir(git_dir):
+        shutil.rmtree(git_dir)
+
+
+def clean_template():
+    """Remove .git/ folder of the template"""
     git_dir = os.path.join(repo_dir, ".git")
     if os.path.isdir(git_dir):
         shutil.rmtree(git_dir)
@@ -76,7 +95,8 @@ def setup_project():
 
 def main():
     pull_template()
-    modify_cmakelists()
+    update_project_name()
+    clean_template()
     setup_project()
     print(
         "--------------------------------------------------------------------------------------------"
